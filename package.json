@@ -1,4 +1,7 @@
 {
+  "name": "cityapp",
+  "version": "1.0.0",
+  "author": "Hugo Flahaut",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -9,9 +12,11 @@
   },
   "dependencies": {
     "@react-native-community/masked-view": "0.1.10",
+    "@react-native-picker/picker": "^1.16.3",
     "@react-navigation/native": "^5.9.4",
     "@react-navigation/stack": "^5.14.5",
     "expo": "~42.0.1",
+    "expo-camera": "~11.2.2",
     "expo-image-picker": "~10.2.2",
     "expo-status-bar": "~1.0.4",
     "react": "16.13.1",
