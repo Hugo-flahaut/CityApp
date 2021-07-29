@@ -27,7 +27,7 @@ const FormScreen = ({navigation}) => {
   const [startCamera, setStartCamera] = React.useState(false);
   const [previewVisible, setPreviewVisible] = React.useState(false);
   const [capturedImage, setCapturedImage] = React.useState(null);
-  // const [cameraType, setCameraType] = React.useState(Camera.Constants.Type.back);
+  const [cameraType, setCameraType] = React.useState(Camera.Constants.Type.back);
 
   // Open Camera 
   const __startCamera = async () => {
@@ -50,15 +50,26 @@ const FormScreen = ({navigation}) => {
   };
 
   const __savePhoto = () => {};
-    
+  const __retakePicture = () => {
+    setCapturedImage(null)
+    setPreviewVisible(false)
+    __startCamera()
+  }
+  const __switchCamera = () => {
+    if (cameraType === 'back') {
+      setCameraType('front')
+    } else {
+      setCameraType('back')
+    }
+  }
+
   // HandleSubmit Method
   const handleSubmit = () =>{
     if(data != null){
-        alert('Votre alerte à été envoyée : \n'  + data + '\n') 
-    }
-    else {
-        alert('veuillez entrez des données')
-    }
+        alert('Votre alerte à été envoyée : \n'  + data + '\n')
+    } else (
+      alert('veuillez entrez des données')
+    )
   };
 
     return (
@@ -96,7 +107,7 @@ const FormScreen = ({navigation}) => {
                   }}
                 > 
                 {previewVisible && capturedImage ? (
-                <CameraPreview photo={capturedImage} savePhoto={__savePhoto} />
+                <CameraPreview photo={capturedImage} savePhoto={__savePhoto} retakePicture={__retakePicture}/>
                   ) : (
                     <Camera
                       style={{flex: 1}}
@@ -107,9 +118,7 @@ const FormScreen = ({navigation}) => {
                       <View style={styles.previewContainer}>
                         <View style={styles.previewWrapper}>
                           <View style={styles.previewDiv}>
-                            {/* <TouchableOpacity onPress={__takePicture} style={styles.snapBtn}>
-                              <Text>Snap</Text>
-                            </TouchableOpacity> */}
+                        
                           </View>
                         </View>
                       </View>
@@ -118,6 +127,9 @@ const FormScreen = ({navigation}) => {
                   <View style={styles.snapBtn}>
                     <TouchableOpacity onPress={__takePicture} style={styles.snapBtnBis}>
                       <Text style={styles.btnText}>Snap</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={__switchCamera} style={styles.snapBtnBis}>
+                      <Text style={styles.btnText}>Flip</Text>
                     </TouchableOpacity>
                   </View>
 
@@ -138,15 +150,21 @@ const FormScreen = ({navigation}) => {
   );
 }
 
-const CameraPreview = ({photo, savePhoto} = any) => {
-  console.log('sdsfds', photo)
+const CameraPreview = ({photo, retakePicture, savePhoto} = any) => {
+  console.log('Sauvegarde en cours', photo)
   return (
     <View style={styles.camera}>
       <ImageBackground
         source={{uri: photo && photo.uri}}
         style={styles.container} >
 
-        <TouchableOpacity onPress={savePhoto} style={styles.snapBtnBis}>
+        <TouchableOpacity onPress={retakePicture} style={styles.snapBtnThird}>
+          <Text style={styles.btnText}>
+            Refaire la photo
+          </Text>
+        </TouchableOpacity>     
+
+        <TouchableOpacity onPress={savePhoto} style={styles.snapBtnFourth}>
           <Text style={styles.btnText}>
             Enregistrer la photo
           </Text>
@@ -255,9 +273,28 @@ const styles = StyleSheet.create({
   snapBtnBis:{
     width : 70,
     height: 70,
-    bottom: 0,
+    bottom: 10,
     borderRadius: 50,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    zIndex: 50
+  },
+  snapBtnThird:{
+    width : 70,
+    height: 70,
+    bottom : 5,
+    left : 20,
+    borderRadius: 50,
+    backgroundColor: '#fff',
+    zIndex: 50
+  },
+  snapBtnFourth:{
+    width : 70,
+    height: 70,
+    bottom : 150,
+    left: 320,
+    borderRadius: 50,
+    backgroundColor: '#fff',
+    zIndex: 50
   },
 
   // Preview
