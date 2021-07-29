@@ -1,33 +1,35 @@
 import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, ScrollView } from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, ScrollView, ImageBackground, Alert } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
 
 const FormScreen = ({navigation}) => {
 
-  // State
-  const [firstName, setFirstName] = React.useState(null);
-  const [lastName, setLastName] = React.useState(null);
-  const [email, setEmail] = React.useState(null);
-  const [zipCode, setZipCode] = React.useState(null);
-  const [city, setCity] = React.useState(null);
-  const [alertType, setAlertType] = React.useState(null);
-  const [description, setDescription] = React.useState(null);
-  const [date, setDate] = React.useState(null);
-  const [hour, setHour] = React.useState(null);
-  const [location, setLocation] = React.useState(null);
-  // const [pictures, setPictures] = React.useState(null);
+  let Newdate= new Date;
 
-  const data = [firstName + lastName + email + zipCode + city + alertType + description + date + hour + location ] ;
+  // State
+  const [firstName, setFirstName] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [zipCode, setZipCode] = React.useState('');
+  const [city, setCity] = React.useState('');
+  const [alertType, setAlertType] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [date, setDate] = React.useState(Newdate.getFullYear()+'-'+(Newdate.getMonth()+1)+'-'+Newdate.getDate());
+  const [hour, setHour] = React.useState(Newdate.getHours() + ":" + Newdate.getMinutes());
+  const [location, setLocation] = React.useState('');
+
+  const data = [firstName + '\n' + lastName + '\n' + email + '\n' + zipCode + '\n'  + city + '\n' + alertType + '\n'  + description + '\n' + date + '\n' + hour + '\n'  + location ] ;
   
   // Expo camera   
   let camera = Camera;
   const [startCamera, setStartCamera] = React.useState(false);
   const [previewVisible, setPreviewVisible] = React.useState(false);
   const [capturedImage, setCapturedImage] = React.useState(null);
-  const [cameraType, setCameraType] = React.useState(Camera.Constants.Type.back);
+  // const [cameraType, setCameraType] = React.useState(Camera.Constants.Type.back);
 
+  // Open Camera 
   const __startCamera = async () => {
     const {status} = await Camera.requestPermissionsAsync()
     if(status === 'granted'){
@@ -42,14 +44,17 @@ const FormScreen = ({navigation}) => {
     // if the camera is undefined or null, we stop the function execution
     const photo = await camera.takePictureAsync()
     console.log(photo)
+    // setStartCamera(false)
     setPreviewVisible(true)
     setCapturedImage(photo)
   };
+
+  const __savePhoto = () => {};
     
   // HandleSubmit Method
   const handleSubmit = () =>{
     if(data != null){
-        alert('Votre alerte à été envoyée : ' + data) 
+        alert('Votre alerte à été envoyée : \n'  + data + '\n') 
     }
     else {
         alert('veuillez entrez des données')
@@ -83,14 +88,33 @@ const FormScreen = ({navigation}) => {
             <TextInput style={styles.colInput} onChangeText={setHour} value={hour} placeholder="Heure" />
             <TextInput style={styles.colInput} onChangeText={setLocation} value={location} placeholder="Adresse" textContentType='location' />
 
-
             {/* Expo Camera */}
             {startCamera ? (
                 <Camera style={styles.camera}
                   ref={(r) => {
                     camera = r
                   }}
-                >
+                > 
+                {previewVisible && capturedImage ? (
+                <CameraPreview photo={capturedImage} savePhoto={__savePhoto} />
+                  ) : (
+                    <Camera
+                      style={{flex: 1}}
+                      ref={(r) => {
+                        camera = r
+                      }}
+                    >
+                      <View style={styles.previewContainer}>
+                        <View style={styles.previewWrapper}>
+                          <View style={styles.previewDiv}>
+                            {/* <TouchableOpacity onPress={__takePicture} style={styles.snapBtn}>
+                              <Text>Snap</Text>
+                            </TouchableOpacity> */}
+                          </View>
+                        </View>
+                      </View>
+                    </Camera>
+                  )}
                   <View style={styles.snapBtn}>
                     <TouchableOpacity onPress={__takePicture} style={styles.snapBtnBis}>
                       <Text style={styles.btnText}>Snap</Text>
@@ -100,18 +124,36 @@ const FormScreen = ({navigation}) => {
                 </Camera>
               ) : (
                 <View style={styles.container}>
-                  <TouchableOpacity onPress={__startCamera} style={styles.button}>
+                  <TouchableOpacity onPress={__startCamera} style={styles.btn}>
                       <Text style={styles.btn}>Prendre une photo</Text>
                   </TouchableOpacity>
                 </View>
               )}
-              
+
           <TouchableOpacity onPress={handleSubmit}>
               <Text style={styles.submitBtn}>Envoyer</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
   );
+}
+
+const CameraPreview = ({photo, savePhoto} = any) => {
+  console.log('sdsfds', photo)
+  return (
+    <View style={styles.camera}>
+      <ImageBackground
+        source={{uri: photo && photo.uri}}
+        style={styles.container} >
+
+        <TouchableOpacity onPress={savePhoto} style={styles.snapBtnBis}>
+          <Text style={styles.btnText}>
+            Enregistrer la photo
+          </Text>
+        </TouchableOpacity>
+      </ImageBackground>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -195,10 +237,10 @@ const styles = StyleSheet.create({
     minHeight: 300,
   },
   btnText: {
-    color: '#dfdfdf',
+    color: '#888',
     textAlign: 'center',
     textAlignVertical: 'center',
-    marginVertical: 10
+    marginVertical: 20
   },
   // Camera
   snapBtn: {
@@ -216,6 +258,28 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 50,
     backgroundColor: '#fff'
+  },
+
+  // Preview
+  previewContainer: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: 'transparent',
+    flexDirection: 'row'
+  },
+  previewWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    flexDirection: 'row',
+    flex: 1,
+    width: '100%',
+    padding: 20,
+    justifyContent: 'space-between'
+  },
+  previewDiv: {
+    alignSelf: 'center',
+    flex: 1,
+    alignItems: 'center'
   }
 });
 
