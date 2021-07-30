@@ -1,14 +1,21 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
 
 const AlertScreen = ({navigation}) => {
     return (
 
+      <ScrollView>
         <View style={styles.container}>
-
-            <Text style={styles.title}>Alert Screen</Text>
-
+          <View style={styles.card}>
+            <Text style={styles.text}>Type d'alerte :</Text>
+            <Text style={styles.text}>A : </Text>
+            <Text style={styles.text}>Description :</Text>
+            <Text style={styles.text}>Signalé le : à : </Text>
+            <Text style={styles.text}>Par : </Text>
+            <Image style={styles.thumbnail}></Image>
+          </View>
         </View>
+      </ScrollView>
     );
 }
 
@@ -16,13 +23,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logo: {
-    width: 305,
-    height: 175,
-    marginBottom: 10 
+    alignItems: 'stretch',
+    justifyContent: 'space-around',
   },
   title: {
     color: '#888',
@@ -34,8 +36,14 @@ const styles = StyleSheet.create({
     color: '#888',
     fontSize: 18
   },  
-  alert: {
-    backgroundColor: '#fff'
+  card:{
+    borderWidth: 1,
+    borderColor: '#888',
+    borderStyle: 'solid',
+    borderRadius: 5,
+    marginHorizontal: 50,
+    padding: 10,
+    marginVertical: 10
   },
   btn: {
     backgroundColor: '#dfdfdf',

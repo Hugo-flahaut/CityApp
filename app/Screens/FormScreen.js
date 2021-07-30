@@ -1,8 +1,10 @@
 import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, ScrollView, ImageBackground, Alert } from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View, TextInput, SafeAreaView, ScrollView, ImageBackground, Alert, Dimensions } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
+import MapView, { Marker } from 'react-native-maps';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
+import * as Location from 'expo-location';
 
 const FormScreen = ({navigation}) => {
 
@@ -16,11 +18,26 @@ const FormScreen = ({navigation}) => {
   const [city, setCity] = React.useState('');
   const [alertType, setAlertType] = React.useState('');
   const [description, setDescription] = React.useState('');
-  const [date, setDate] = React.useState(Newdate.getFullYear()+'-'+(Newdate.getMonth()+1)+'-'+Newdate.getDate());
-  const [hour, setHour] = React.useState(Newdate.getHours() + ":" + Newdate.getMinutes());
-  const [location, setLocation] = React.useState('');
+  const [date, setDate] = React.useState(Newdate.getDate() +'-'+ (Newdate.getMonth()+1) +'-'+ Newdate.getFullYear());
+  const [hour, setHour] = React.useState(Newdate.getHours() + "h" + Newdate.getMinutes());
+  const [adress, setAdress] = React.useState('');
 
-  const data = [firstName + '\n' + lastName + '\n' + email + '\n' + zipCode + '\n'  + city + '\n' + alertType + '\n'  + description + '\n' + date + '\n' + hour + '\n'  + location ] ;
+  // Expo Location base state
+  const [errorMsg, setErrorMsg] = React.useState(null);
+  const [mapRegion, setMapRegion] = React.useState({longitude:50.72625633978721, latitude: 1.6145736261308656, latitudeDelta: 0.0922, longitudeDelta: 0.0421});
+
+  // Activate location on click
+  const __startLocalisation = async () => {
+    let location = await Location.getCurrentPositionAsync({});
+    setMapRegion({
+      longitude: location.coords.longitude,
+      latitude: location.coords.latitude,
+      longitudeDelta: 0.0922,
+      latitudeDelta: 0.0421
+    });
+  }
+
+  const data = [firstName + '\n' + lastName + '\n' + email + '\n' + zipCode + '\n'  + city + '\n' + alertType + '\n'  + description + '\n' + date + '\n' + hour + '\n' ] ;
   
   // Expo camera   
   let camera = Camera;
@@ -50,6 +67,7 @@ const FormScreen = ({navigation}) => {
   };
 
   const __savePhoto = () => {};
+
   const __retakePicture = () => {
     setCapturedImage(null)
     setPreviewVisible(false)
@@ -62,6 +80,19 @@ const FormScreen = ({navigation}) => {
       setCameraType('back')
     }
   }
+
+  // Expo Location
+  React.useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission d\'accéder à la localisation refusée.');
+
+        return;
+      }
+    })();
+  }, []);
+
 
   // HandleSubmit Method
   const handleSubmit = () =>{
@@ -97,9 +128,30 @@ const FormScreen = ({navigation}) => {
             <TextInput style={styles.textAreatInput} onChangeText={setDescription} value={description} placeholder="Description" multiline={true} numberOfLines={8} />
             <TextInput style={styles.colInput} onChangeText={setDate} value={date} placeholder="Date"  />
             <TextInput style={styles.colInput} onChangeText={setHour} value={hour} placeholder="Heure" />
-            <TextInput style={styles.colInput} onChangeText={setLocation} value={location} placeholder="Adresse" textContentType='location' />
+            
+            {/* Expo Location */}
+            <TextInput style={styles.colInput} placeholder="Adresse" onChangeText={setAdress} value={adress} textContentType='location' />
+            <TouchableOpacity onPress={__startLocalisation}>
+              <Text style={styles.submitBtn}>Me localiser</Text>
+            </TouchableOpacity>
 
-            {/* Expo Camera */}
+            {/* Expo Maps */}
+
+            <View style={styles.container}>
+              <MapView style={styles.map} initialRegion={mapRegion}>
+                <Marker coordinate={mapRegion} title="Alerte" description="Alerte en cours">
+                  <View style={styles.circle}>
+                    <View style={styles.stroke}>
+                      <View style={styles.core}>
+                      </View>
+                    </View>
+
+                  </View>
+                </Marker>
+              </MapView>
+            </View> 
+
+          {/* Expo Camera */}
             {startCamera ? (
                 <Camera style={styles.camera}
                   ref={(r) => {
@@ -118,7 +170,6 @@ const FormScreen = ({navigation}) => {
                       <View style={styles.previewContainer}>
                         <View style={styles.previewWrapper}>
                           <View style={styles.previewDiv}>
-                        
                           </View>
                         </View>
                       </View>
@@ -248,6 +299,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center'
   },
+  // Camera
   camera: {
     flex: 1,
     width: '100%',
@@ -260,9 +312,9 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     marginVertical: 20
   },
-  // Camera
   snapBtn: {
     position: 'absolute',
+    backgroundColor: 'red',
     bottom: 0,
     flexDirection: 'row',
     flex: 1,
@@ -317,6 +369,42 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flex: 1,
     alignItems: 'center'
+  },
+  // Map
+  map: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height-300,
+    marginVertical: 10,
+  },
+  circle:{
+    width: 26,
+    height: 26,
+    borderRadius: 50,
+    shadowColor: "#555",
+    shadowOffset: {
+      width: 2,
+      height:2,
+    },
+    shadowOpacity: 0.9
+  },
+  stroke:{
+    width: 26,
+    height: 26,
+    borderRadius: 50,
+    backgroundColor: '#fff',
+    zIndex: 1
+  },
+  core: {
+    width: 24,
+    height: 24,
+    position: 'absolute',
+    left: 1,
+    top: 1,
+    bottom: 1,
+    right: 1,
+    backgroundColor: 'red',
+    zIndex: 2,
+    borderRadius: 50
   }
 });
 
