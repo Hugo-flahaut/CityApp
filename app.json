@@ -25,10 +25,11 @@
         "backgroundColor": "#FFFFFF"
       },
       "config": {
-        "googleMaps":{
-          "apiKey":"[AIzaSyCFHVePRZPceWM0Dng40Sw6JXnb3nob7hA]"
+        "googleMaps": {
+          "apiKey": "[AIzaSyCFHVePRZPceWM0Dng40Sw6JXnb3nob7hA]"
         }
-      }
+      },
+      "package": "com.hugoflahaut.cityapp"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
