@@ -6,6 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Camera } from 'expo-camera';
 import * as Location from 'expo-location';
 import * as MediaLibrary from 'expo-media-library';
+import emailjs from 'emailjs-com';
 
 const FormScreen = ({ navigation }) => {
 
@@ -25,7 +26,7 @@ const FormScreen = ({ navigation }) => {
 
   // Expo Location base state
   const [errorMsg, setErrorMsg] = React.useState(null);
-  const [mapRegion, setMapRegion] = React.useState({ longitude: 50.72625633978721, latitude: 1.6145736261308656, latitudeDelta: 0.0922, longitudeDelta: 0.0421 });
+  const [mapRegion, setMapRegion] = React.useState({ longitude: 0.72625633978721, latitude: 45.6145736261308656, latitudeDelta: 100, longitudeDelta: 100 });
   const [isLocation, setIsLocation] = React.useState(false);
 
   // Activate location on click
@@ -45,7 +46,19 @@ const FormScreen = ({ navigation }) => {
   //   setAdress(adress)
   // }
 
-  const data = [firstName + '\n' + lastName + '\n' + email + '\n' + zipCode + '\n' + city + '\n' + alertType + '\n' + description + '\n' + date + '\n' + hour + '\n'];
+  var data = {
+    alertType: alertType,
+    email: email,
+    firstName: firstName,
+    lastName: lastName,
+    zipCode: zipCode,
+    city: city,
+    description: description,
+    geo: mapRegion,
+    date: date,
+    hour: hour,
+    // photo: photo,
+};
 
   // Expo camera   
   let camera = Camera;
@@ -104,12 +117,12 @@ const FormScreen = ({ navigation }) => {
       }
     })();
   }, []);
-
-
+  
   // HandleSubmit Method
   const handleSubmit = () => {
     if (data != null) {
-      alert('Votre alerte à été envoyée : \n' + data + '\n')
+      emailjs.send('service_z162i1p', 'template_1vyrz2q', data, 'user_3RPuVHl55lnk0G4RQLGy2')
+      alert('Votre alerte à été envoyée !')
     } else (
       alert('veuillez entrez des données')
     )
@@ -385,36 +398,36 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height - 300,
     marginVertical: 10,
   },
-  circle: {
-    width: 26,
-    height: 26,
-    borderRadius: 50,
-    shadowColor: "#555",
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
-    shadowOpacity: 0.9
-  },
-  stroke: {
-    width: 26,
-    height: 26,
-    borderRadius: 50,
-    backgroundColor: '#fff',
-    zIndex: 1
-  },
-  core: {
-    width: 24,
-    height: 24,
-    position: 'absolute',
-    left: 1,
-    top: 1,
-    bottom: 1,
-    right: 1,
-    backgroundColor: 'red',
-    zIndex: 2,
-    borderRadius: 50
-  },
+  // circle: {
+  //   width: 26,
+  //   height: 26,
+  //   borderRadius: 50,
+  //   shadowColor: "#555",
+  //   shadowOffset: {
+  //     width: 2,
+  //     height: 2,
+  //   },
+  //   shadowOpacity: 0.9
+  // },
+  // stroke: {
+  //   width: 26,
+  //   height: 26,
+  //   borderRadius: 50,
+  //   backgroundColor: '#fff',
+  //   zIndex: 1
+  // },
+  // core: {
+  //   width: 24,
+  //   height: 24,
+  //   position: 'absolute',
+  //   left: 1,
+  //   top: 1,
+  //   bottom: 1,
+  //   right: 1,
+  //   backgroundColor: 'red',
+  //   zIndex: 2,
+  //   borderRadius: 50
+  // },
   // search
   searchBar: {
     position: 'absolute',
